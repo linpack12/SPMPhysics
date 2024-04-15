@@ -45,10 +45,8 @@ void AMyPawn::Tick(float DeltaTime)
 
 	const FVector CurrentLocation = GetActorLocation();
 	
-	if (!CollisionFunction(CurrentLocation + Movement))
-	{
-		SetActorLocation(CurrentLocation + Direction * Distance);
-	}	
+	SetActorLocation(CurrentLocation + CollisionFunction(Movement) + FVector::DownVector * Gravity * DeltaTime);
+	
 }
 
 // Called to bind functionality to input
@@ -88,7 +86,7 @@ void AMyPawn::VerticalInput(float AxisValue)
 }
 
 // Checks
-bool AMyPawn::CollisionFunction(FVector Movement)
+FVector AMyPawn::CollisionFunction(FVector Movement)
 {
 	FVector Origin, Extent;
 	GetActorBounds(true, Origin, Extent);
@@ -96,8 +94,9 @@ bool AMyPawn::CollisionFunction(FVector Movement)
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
 
-	FVector TraceStart = GetActorLocation();
-	FVector TraceEnd = GetActorLocation();
+	FVector CurrentLocation = GetActorLocation();
+	FVector TraceStart = CurrentLocation;
+	const FVector TraceEnd = Origin + Movement.GetSafeNormal() * (Movement.Size() + SkinWidth);
 
 	ECollisionChannel TraceChannelProperty = ECC_Pawn;
 	
@@ -112,7 +111,10 @@ bool AMyPawn::CollisionFunction(FVector Movement)
 		QueryParams);
 
 	if (bHit)
+	{
 		UE_LOG(LogTemp, Warning, TEXT("Collision with: %s"), *Hit.GetActor()->GetActorLabel());
-	
-	return bHit;
+		return Movement.GetSafeNormal() * (Hit.Distance - SkinWidth);
+	}
+    
+	return Movement;
 }

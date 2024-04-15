@@ -19,8 +19,14 @@ public:
 	UPROPERTY(EditAnywhere, Category="Movement")
 	double MovementSpeed = 1.f;
 
-	UPROPERTY(EditAnywhere, Category="Player Mesh")
+	UPROPERTY(EditAnywhere, Category="Movement")
+	double Gravity = 60.f;
+
+	UPROPERTY(EditAnywhere, Category="Player")
 	UStaticMeshComponent* StaticMesh;
+
+	UPROPERTY(EditAnywhere, Category="Player")
+	float SkinWidth = 20.f;
 
 protected:
 	// Called when the game starts or when spawned
@@ -37,7 +43,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
-	bool CollisionFunction(FVector Movement);
+	FVector CollisionFunction(FVector Movement);
 
 private:
 	void JumpInput();
